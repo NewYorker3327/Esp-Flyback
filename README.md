@@ -34,9 +34,14 @@ Programa que tem dois pwm's, o segundo pwm funciona como a portadora da segunda.
 
 ### Comandos seriais
 
-<geral> Recebe os valores na memória local
-<potencia> Recebe o valor da potencia de 0 a 4096
-<frequencia> Recebe o valor da frequencia em hearts
-<portadora> Recebe o valor da portadora em micro segundos
-<salvar> Salva as variáveis na memória flash
-<temperatura>	Mostra a temperatura da placa
+geral -> Recebe os valores na memória local
+
+potencia -> Recebe o valor da potencia de 0 a 4096
+
+frequencia -> Recebe o valor da frequencia em hearts
+
+portadora -> Recebe o valor da portadora em micro segundos
+
+salvar -> Salva as variáveis na memória flash
+
+temperatura ->	Mostra a temperatura da placa
