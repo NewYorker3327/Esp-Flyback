@@ -23,115 +23,13 @@ try:
 except:
     print("Erro na leitura da memória para o PWM...")
     with open("valores.py", "w") as arq:
-        arq.write("potencia, frequencia, portadora = 20, 480, 100_000")
+        arq.write("potencia, frequencia, portadora, musica = 20, 480, 100_000, 'zelda'")
     sleep(0.1)
     from valores import *
     
 from pinos import *
-
-def musicas(mus:str, obj):
-    """
-    Para tocar música
-    """
-    def voltar(k, log2 = log2, limite_inf = 440):
-        return int(12*log2(k/limite_inf))
-
-    def passar_nota(n):
-        return int(220 * 2 ** (n/12))
-    
-    if mus == "intro":
-        temp = 8
-        mus = [[392, 200, 2], [392, 400, 3], [523, 200, 2], [523, 400, 3],
-               [588, 200, 2], [588, 400, 3], [660, 200, 2], [660, 400, 3], [392, 200, 2],[392, 400, 23], [392,0, .8],
-               [392, 400, 5], [523, 400, 5], [523, 400, 3], [588, 400, 5],
-               [588, 400, 5], [660, 400, 5], [588, 400, 5], [660, 400, 5], [700, 400, 3], [660, 400, 3], [700, 400, 5],
-               [660, 400, 3], [588, 400, 3], [523, 400, 25], [392, 10, 3]]
-
-    if mus == "exit":
-        temp = 8
-        mus = [[1568+784, 440, 2], [1175+587, 440, 2], [784+523, 440, 2], [587+294, 440, 2],
-               [523+392, 440, 2]]
-
-    if mus == "zelda":
-        v = 300
-        temp = 16
-        mus = [[12, v, 6], [0, v, 10], [2, v, 2], [3, v, 2], [5, v, 2], [7, v, 16],
-               [8, v, 2], [10, v, 2], [12, v, 16], [10, v, 2], [8, v, 2], [10, v, 4],
-               [8, v, 2], [7, v, 16], [5, v, 4], [7, v, 2], [8, v, 16], [7, v, 2], [5, v, 2], [3, v, 4],
-               [5, v, 2], [7, v, 16], [5, v, 2], [3, v, 2], [2, v, 2], [3, v, 2], [5, v, 2], [8, v, 6], [7, v, 12]]
-
-    if mus == "fef":
-        v = 300
-        temp = 16
-        mus = [[1, v, 2], [8, v, 2], [15, v, 2], [16, v, 6], [1, v, 2], [8, v, 2], [15, v, 2], [16, v, 6], [1, v, 2], [8, v, 2], [15, v, 2], [16, v, 6],
-               [[1,8], v, 2], [8, v, 2], [[15, 8], v, 2], [[16, 8], v, 2], [16, v, 4],
-               [[-1,8], v, 2], [8, v, 2], [[15, 8], v, 2], [[16, 8], v, 2], [16, v, 4],
-               [[-3,8], v, 2], [8, v, 2], [[15, 8], v, 2], [[16, 8], v, 2], [16, v, 4],
-               [[3,6], v, 4], [[1, 4], v, 4], [[-1, 2], v, 4],
-               [1, v, 8], [-1, v, 2], [6, v, 2], [1, v, 8], [-1, v, 2], [8, v, 2],
-               [4, v, 8], [8, v, 2], [6, v, 2], [8, v, 8]]
-
-    for nota in mus:
-        if type(nota[0]) == list:
-            resp = 0
-            for n_individual in nota[0]:
-                resp += passar_nota(n_individual)
-            obj.freq(resp)
-            obj.duty(nota[1])
-            sleep(nota[2]/temp)
-        elif nota[0] < 30:
-            obj.freq(passar_nota(nota[0]))
-            obj.duty(nota[1])
-            sleep(nota[2]/temp)
-        else:
-            obj.freq(nota[0])
-            obj.duty(nota[1])
-            sleep(nota[2]/temp)
-
-    obj.freq(432)
-    obj.duty(0)
-
-def logica_serial(texto, uart, potencia, frequencia, portadora):
-    """
-    Lógica da serial
-    """
-    texto = texto.replace("\r", "")
-    
-    if texto.find("=") > -1:
-        texto = texto.replace(" ", "")
-        funcao = f"globals()['{texto[:texto.find('=')]}'] = int({texto[texto.find('=') + 1:]})"
-        exec(funcao)
-        uart.write(f"Salvo {texto[:texto.find('=')]} localmente com o valor {{texto[texto.find('=') + 1:])}!\n\n")
-        
-    elif texto.find("salvar") > -1:
-        with open("variaveis.py", "w") as arq:
-            arq.write(f"potencia, frequencia, portadora = {potencia}, {frequencia}, {portadora}")
-        uart.write("Salvo na memória flash!\n\n")
-    
-    elif texto.find("geral") > -1:
-        uart.write(f"potencia = {potencia}\nfrequencia = {frequencia}\nportadora = {portadora}\n\n")
-    
-    elif texto.find("potencia") > -1:
-        uart.write(f"potencia = {potencia}\n\n")
-    
-    elif texto.find("frequencia") > -1:
-        uart.write(f"frequencia = {frequencia}\n\n")
-    
-    elif texto.find("portadora") > -1:
-        uart.write(f"portadora = {portadora}\n\n")
-
-    elif texto.find("temperatura") > -1:
-        uart.write("Temperatura placa = {(esp32.raw_temperature()-32)/1.8:0.1f}C")
-        
-    elif texto.find("help") > -1:
-        ajuda = """\nComandos		Explicacao
-geral			Recebe os valores na memória local
-potencia		Recebe o valor da potencia de 0 a 4096
-frequencia		Recebe o valor da frequencia em hearts
-portadora		Recebe o valor da portadora em micro segundos
-salvar			Salva as variáveis na memória flash
-temperatura		Mostra a temperatura da placa\n\n"""
-        uart.write(ajuda)
+from musica import *
+from logica_serial import *
 
 if __name__ == "__main__":
 #   ____        __ _       _      /\/|               
@@ -188,7 +86,7 @@ if __name__ == "__main__":
     uart.write("Escreva 'help' para ajuda...")
 
     #Tocando musíca:
-    musicas("zelda", pwm)
+    musicas(musica, pwm)
 
     frequencia_antiga = frequencia
     potencia_antiga = potencia
@@ -235,7 +133,7 @@ if __name__ == "__main__":
                     
                 if texto_completo.find("\r") > -1:
                     uart.write(f"\n\n")
-                    logica_serial(texto_completo, uart, potencia, frequencia, portadora)
+                    logica_serial(texto_completo, uart, potencia, frequencia, portadora, musica)
                     texto_completo = ""
                     uart.write("\n>>>")
             
