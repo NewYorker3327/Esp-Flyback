@@ -80,13 +80,14 @@ def logica_serial(texto, uart, potencia, frequencia, portadora, musica = "zelda"
         uart.write(f"musica = {musica}\n\n")
 
     elif texto.find("help") > -1:
-        ajuda = """\nComandos		Explicacao
-geral			Recebe os valores na memória local
-potencia		Recebe o valor da potencia de 0 a 4096
-frequencia		Recebe o valor da frequencia em hearts
-portadora		Recebe o valor da portadora em micro segundos
-salvar			Salva as variáveis na memória flash
-temperatura		Mostra a temperatura da placa\n\n"""
+        ajuda = """\nComandos		|Explicacao
+------------------------|---------------------------------------------
+geral			|Recebe os valores na memória local
+potencia		|Recebe o valor da potencia de 0 a 4096
+frequencia		|Recebe o valor da frequencia em hearts
+portadora		|Recebe o valor da portadora em micro segundos
+salvar			|Salva as variáveis na memória flash
+temperatura		|Mostra a temperatura da placa\n\n"""
         uart.write(ajuda)
 
 
@@ -101,8 +102,17 @@ def logica_principal(uart, pwm, pwm_portadora, led, frequencia, potencia, portad
      8b d8  d8========8b    
       888  d8          8b   
        8  d8            8b
-"""
+\n\n"""
     uart.write(logo)
+    ajuda = """\nComandos		|Explicacao
+------------------------|---------------------------------------------
+geral			|Recebe os valores na memória local
+potencia		|Recebe o valor da potencia de 0 a 4096
+frequencia		|Recebe o valor da frequencia em hearts
+portadora		|Recebe o valor da portadora em micro segundos
+salvar			|Salva as variáveis na memória flash
+temperatura		|Mostra a temperatura da placa\n\n"""
+    uart.write(ajuda)
     uart.write(f"{'='*40}\n\n")
     uart.write("Escreva 'help' para ajuda...\n\n")
     
@@ -114,7 +124,7 @@ def logica_principal(uart, pwm, pwm_portadora, led, frequencia, potencia, portad
     pwm.duty(potencia)
     pwm_portadora.freq(portadora)
     pwm_portadora.duty(128) #50% do duty cicle
-    intervalo = 50_000
+    intervalo = 35_000
     iteracao = 1
 
     #Da interface:
@@ -148,7 +158,7 @@ def logica_principal(uart, pwm, pwm_portadora, led, frequencia, potencia, portad
                 uart.write(linha.decode('utf-8'))
 
             if texto_completo.find("§") > -1:
-                uart.write(f"\n\n\nReiniciando...\n\n")
+                uart.write(f"\n\n\nReiniciando...\n\n\n\n\n")
                 return None
             
             if texto_completo.find("+") > -1:
@@ -165,14 +175,14 @@ def logica_principal(uart, pwm, pwm_portadora, led, frequencia, potencia, portad
                 texto_completo = ""
                 uart.write("\n>>>")
             
-            if iteracao % 10 == 0:
+            if iteracao % 30 == 0:
                 if (esp32.raw_temperature()-32)/1.8 > 80:
                     uart.write(f"Alta temperatura {(esp32.raw_temperature()-32)/1.8}Cº, diminuindo clock!\n\n")
-                    intervalo += 25_000
+                    intervalo += 30_000
                     intervalo = min(300_000, intervalo) 
                 
                 elif (esp32.raw_temperature()-32)/1.8 < 60:
-                    intervalo = 50_000
+                    intervalo = 35_000
                 iteracao = 1
             
         except Exception as error:
@@ -227,4 +237,3 @@ if __name__ == "__main__":
 
     while True:
         logica_principal(uart, pwm, pwm_portadora, led, frequencia, potencia, portadora)
-        
