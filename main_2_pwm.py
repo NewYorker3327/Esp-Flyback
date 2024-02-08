@@ -233,7 +233,7 @@ if __name__ == "__main__":
 #                                                            
 
      #Tocando musíca:
-    #musicas(musica, pwm)
+    musicas(musica, pwm)
 
     while True:
         logica_principal(uart, pwm, pwm_portadora, led, frequencia, potencia, portadora)
