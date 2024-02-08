@@ -1,3 +1,6 @@
+from math import log2
+from time import sleep
+
 def musicas(mus:str, obj):
     """
     Para tocar música
