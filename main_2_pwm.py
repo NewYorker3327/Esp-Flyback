@@ -216,8 +216,8 @@ if __name__ == "__main__":
 
     print(f"Ligando sinal portadora (pino {pino_portadora})...\n")
     pwm_portadora = PWM(Pin(pino_portadora))#Canal PWM
-    pwm_portadora.freq(432)
-    pwm_portadora.duty(0)
+    pwm_portadora.freq(10_000)
+    pwm_portadora.duty(500)
 
     #uart
     print(f"Ligando comunicação serial (pinos: tx = {pino_uart['tx']}, rx = {pino_uart['rx']})...\n")
